@@ -125,7 +125,7 @@ export const PostView = (props: PostWithUser) => {
                 w-[200px] rounded-md border border-slate-700 opacity-0
                 transition-all duration-300 after:absolute after:top-0 after:-z-20
                 after:inline-block after:h-full
-                after:w-full after:rounded-md after:bg-slate-950  after:content-[""] peer-focus:visible peer-focus:top-0 peer-focus:opacity-100'
+                after:w-full after:rounded-md after:bg-slate-900  after:content-[""] peer-focus:visible peer-focus:top-0 peer-focus:opacity-100'
                 >
                   <div className="p-1">
                     <button

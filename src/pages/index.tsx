@@ -1,5 +1,4 @@
 import { signIn, signOut, useSession } from "next-auth/react";
-import Head from "next/head";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
@@ -108,25 +107,16 @@ const Feed = () => {
 
 export default function Home() {
   return (
-    <>
-      <Head>
-        <title>Twitter T3 App</title>
-        <meta name="description" content="Twitter T3 App" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <PageLayout>
-        <NavbarLayout>
-          <h1 className="text-[20px] font-semibold ">Home</h1>
-          <AuthShowcase />
-        </NavbarLayout>
-        <main className="text-white">
-          <div className="mt-14 flex  min-h-screen flex-col items-center gap-2 divide-y divide-slate-700 ">
-            <CreatePostWizard />
-            <Feed />
-          </div>
-        </main>
-      </PageLayout>
-    </>
+    <PageLayout>
+      <NavbarLayout>
+        <h1 className="text-[20px] font-semibold ">Home</h1>
+        <AuthShowcase />
+      </NavbarLayout>
+      <div className="mt-14 divide-y divide-slate-700 ">
+        <CreatePostWizard />
+        <Feed />
+      </div>
+    </PageLayout>
   );
 }
 
@@ -209,51 +199,49 @@ function AuthShowcase() {
     );
 
   return (
-    <div className="flex flex-col items-center justify-center gap-2">
-      <button
-        className="flex items-center gap-x-1"
-        onClick={sessionData ? () => void signOut() : () => void signIn()}
-      >
-        {status === "loading" && <LoadingSpinner />}
-        {sessionData && status === "authenticated" && (
-          <>
-            <span className="text-sm font-semibold">Sign out</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.7}
-              stroke="currentColor"
-              className="h-6 w-6"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
-              />
-            </svg>
-          </>
-        )}
-        {!sessionData && status === "unauthenticated" && (
-          <>
-            <span className="text-sm font-semibold">Sign in</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="h-6 w-6 rotate-180"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"
-              />{" "}
-            </svg>
-          </>
-        )}
-      </button>
-    </div>
+    <button
+      className="flex items-center gap-x-1"
+      onClick={sessionData ? () => void signOut() : () => void signIn()}
+    >
+      {status === "loading" && <LoadingSpinner />}
+      {sessionData && status === "authenticated" && (
+        <>
+          <span className="text-sm font-semibold">Sign out</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.7}
+            stroke="currentColor"
+            className="h-6 w-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
+            />
+          </svg>
+        </>
+      )}
+      {!sessionData && status === "unauthenticated" && (
+        <>
+          <span className="text-sm font-semibold">Sign in</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="h-6 w-6 rotate-180"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"
+            />{" "}
+          </svg>
+        </>
+      )}
+    </button>
   );
 }

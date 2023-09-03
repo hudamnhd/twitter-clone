@@ -30,7 +30,7 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
       </Head>
       <PageLayout>
         <NavbarLayout>
-          <div className="flex  items-center gap-x-5">
+          <div className="flex items-center gap-x-5">
             <BackButton />
             <div className="my-0.5 flex items-center gap-x-2.5">
               <Image

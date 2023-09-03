@@ -103,7 +103,7 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
         </div>
         <div className="mx-4 mt-3 flex items-center justify-end gap-x-2">
           {sessionData && sessionData.user.id === data.id && (
-            <button className="rounded-full bg-black px-6 py-2 text-sm font-semibold ring-1 ring-gray-500 hover:bg-black disabled:opacity-60">
+            <button className="rounded-full bg-slate-900 px-6 py-2 text-sm font-semibold ring-1 ring-gray-500 hover:bg-slate-900 disabled:opacity-60">
               Edit Profile
             </button>
           )}
@@ -191,8 +191,8 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
                 }}
                 className={`flex items-center justify-center rounded-full  py-2 text-sm font-semibold ring-1 disabled:opacity-80 ${
                   isFollowed
-                    ? "w-[110px] bg-black ring-gray-500  hover:bg-red-900/30 hover:bg-slate-900 hover:text-red-500"
-                    : "w-[90px] bg-[#eff3fa] text-black ring-transparent hover:bg-[#eff3fa]/90"
+                    ? "w-[110px] bg-slate-900 ring-gray-500  hover:bg-red-900/30 hover:bg-slate-900 hover:text-red-500"
+                    : "w-[90px] bg-[#eff3fa] text-slate-900 ring-transparent hover:bg-[#eff3fa]/90"
                 }`}
               >
                 {isLoading ? (

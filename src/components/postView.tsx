@@ -64,13 +64,24 @@ export const PostView = (props: PostWithUser) => {
   const currentTime = dayjs();
   const timeDifference = currentTime.diff(createdAt, "hour");
 
+  // Mendapatkan selisih waktu dalam bentuk "1 h" atau "2 m"
+  const relativeTimeString = createdAt.fromNow(true);
+
+  // Ubah hasil dari "1 h" atau "2 m" ke format yang diinginkan
+  const formattedTime = relativeTimeString
+    .replace("seconds", "s")
+    .replace("hours", "h")
+    .replace("minutes", "m");
+
+  console.log(relativeTimeString); // Output: "1 h" atau "2 m" tergantung pada selisih waktu
+
   return (
     <div
       className={`${
         isLoading ? "opacity-60" : ""
-      } flex w-full gap-3 border-b border-slate-700 px-5 py-3 hover:bg-slate-800/50`}
+      } flex  gap-3 border-b border-slate-700 px-5 py-3 hover:bg-slate-800/50`}
     >
-      <div>
+      <div className="flex min-w-[45px]">
         <Link href={`/${author.username}`}>
           <Image
             src={author.image ?? ""}
@@ -81,20 +92,23 @@ export const PostView = (props: PostWithUser) => {
           />
         </Link>
       </div>
-      <div className="flex w-full flex-col gap-0.5">
+      <div className="flex-1">
         <div className="flex justify-between text-[15px] text-slate-300">
-          <div className="flex flex-wrap gap-1">
+          <div className="flex  gap-x-1 [@media(max-width:380px)]:flex-wrap">
             <Link
               href={`/${author.username}`}
-              className="font-semibold capitalize text-[#e7e9ea]"
+              className=" font-semibold capitalize text-[#e7e9ea]"
             >
               {`${author.name}`}
             </Link>
             <div className="text-[#71767b]">
-              <Link href={`/${author.username}`}>{`@${author.username}`}</Link>
-              <Link href={`/post/${post.id}`}>
+              <Link
+                className="truncate"
+                href={`/${author.username}`}
+              >{`@${author.username}`}</Link>
+              <Link className="" href={`/post/${post.id}`}>
                 {timeDifference <= 24 ? (
-                  <span>{` · ${createdAt.fromNow()}`}</span>
+                  <span>{` · ${formattedTime}`}</span>
                 ) : (
                   <span>{` · ${createdAt.format("DD MMM")}`}</span>
                 )}
@@ -124,7 +138,7 @@ export const PostView = (props: PostWithUser) => {
                 w-[200px] rounded-md border border-slate-700 opacity-0
                 transition-all duration-300 after:absolute after:top-0 after:-z-20
                 after:inline-block after:h-full
-                after:w-full after:rounded-md after:bg-slate-950  after:content-[""] peer-focus:visible peer-focus:top-0 peer-focus:opacity-100'
+                after:w-full after:rounded-md after:bg-slate-900  after:content-[""] peer-focus:visible peer-focus:top-0 peer-focus:opacity-100'
               >
                 <div className="p-1">
                   <button
