@@ -1,20 +1,17 @@
 import Head from "next/head";
 import Image from "next/image";
 import { api } from "~/utils/api";
-import { PostView } from "~/components/postView";
 import { PageLayout } from "~/components/layout";
-import { LoadingSpinner } from "~/components/loading";
 import type { GetStaticProps, NextPage } from "next";
 import { generateSSGHelper } from "~/server/helpers/ssgHelper";
 import { BackButton } from "~/components/backButton";
 import { NavbarLayout } from "~/components/layoutNavbar";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
 import Link from "next/link";
 import { NotFound } from "~/components/notFound";
 
 const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
-  const { data: sessionData, status } = useSession();
+  const { data: sessionData } = useSession();
   const { data } = api.profile.getUserByUsername.useQuery(
     {
       username,
@@ -22,20 +19,7 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
     { enabled: sessionData?.user !== undefined },
   );
 
-  const [isHover, setIsHover] = useState("");
-
-  const ctx = api.useContext();
-  const { mutate, isLoading } = api.profile.follow.useMutation({
-    onSuccess: () => {
-      void ctx.profile.getUserByUsername.invalidate();
-    },
-  });
-
   if (!data) return <NotFound />;
-
-  const isFollowed = data.followers.some(
-    (user) => user.id === sessionData?.user.id,
-  );
 
   return (
     <>
