@@ -25,7 +25,7 @@ export const PostView = (props: PostWithUser) => {
     onSuccess: () => {
       void ctx.posts.getAll.invalidate();
     },
-    onError: (e) => {
+    onError: () => {
       toast.error("Failed to post! Please try again later.");
     },
   });
