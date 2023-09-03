@@ -25,6 +25,9 @@ export const PostView = (props: PostWithUser) => {
     onSuccess: () => {
       void ctx.posts.getAll.invalidate();
     },
+    onError: (e) => {
+      toast.error("Failed to post! Please try again later.");
+    },
   });
   const { mutate: mutateEdit, isLoading: isSave } = api.posts.edit.useMutation({
     onSuccess: () => {
