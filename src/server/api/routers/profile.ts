@@ -121,7 +121,7 @@ export const profileRouter = createTRPCRouter({
     .input(
       z.object({
         userId: z.string(),
-        username: z.string().min(3).max(15),
+        username: z.string().min(3).max(10),
       }),
     )
     .mutation(async ({ ctx, input }) => {

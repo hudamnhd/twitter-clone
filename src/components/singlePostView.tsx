@@ -133,7 +133,7 @@ export const PostView = (props: PostWithUser) => {
                         setEditPost(post.content);
                         setToggle(true);
                       }}
-                      className="flex w-full items-center gap-2 rounded-md p-2 text-sm text-gray-100 hover:bg-gray-700"
+                      className="flex w-full items-center gap-2 rounded-md p-2 text-sm hover:bg-slate-800"
                       role="menuitem"
                     >
                       <svg
@@ -155,7 +155,7 @@ export const PostView = (props: PostWithUser) => {
                     <button
                       onClick={() => mutate({ postId: post.id })}
                       type="submit"
-                      className="flex w-full items-center gap-2 rounded-md p-2 text-sm text-gray-100 hover:bg-gray-700"
+                      className="flex w-full items-center gap-2 rounded-md p-2 text-sm hover:bg-slate-800"
                       role="menuitem"
                     >
                       <svg
@@ -187,7 +187,7 @@ export const PostView = (props: PostWithUser) => {
         </div>
       </div>
 
-      <div className="flex flex-col gap-y-3 pt-4">
+      <div className="flex flex-col gap-y-2 pt-4">
         {editPost || toggle ? (
           <div className="w-full pt-1.5">
             <textarea
@@ -236,7 +236,7 @@ export const PostView = (props: PostWithUser) => {
           {`${formattedDate}`}
         </Link>
         {/* Button Like */}
-        <div className="mt-2 flex  items-center justify-around gap-x-1 border-y border-slate-700 py-2">
+        <div className="flex  items-center justify-around gap-x-1 border-t border-slate-700 pt-2">
           <button
             onClick={() => mutateLike({ postId: post.id })}
             className={`${

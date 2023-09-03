@@ -97,7 +97,7 @@ const Feed = () => {
       </div>
     );
   return (
-    <div className="w-full">
+    <div className="w-full divide-y divide-slate-700">
       {data?.map((fullPost) => (
         <PostView {...fullPost} key={fullPost.post.id} />
       ))}
@@ -106,6 +106,7 @@ const Feed = () => {
 };
 
 export default function Home() {
+  api.posts.getAll.useQuery();
   return (
     <PageLayout>
       <NavbarLayout>

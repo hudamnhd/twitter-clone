@@ -73,13 +73,11 @@ export const PostView = (props: PostWithUser) => {
     .replace("hours", "h")
     .replace("minutes", "m");
 
-  console.log(relativeTimeString); // Output: "1 h" atau "2 m" tergantung pada selisih waktu
-
   return (
     <div
       className={`${
         isLoading ? "opacity-60" : ""
-      } flex  gap-3 border-b border-slate-700 px-5 py-3 hover:bg-slate-800/50`}
+      } grid grid-cols-[auto,1fr] gap-x-3 gap-y-1  border-slate-700 px-4 py-3 hover:bg-slate-800/20`}
     >
       <div className="flex min-w-[45px]">
         <Link href={`/${author.username}`}>
@@ -92,61 +90,59 @@ export const PostView = (props: PostWithUser) => {
           />
         </Link>
       </div>
-      <div className="flex-1">
-        <div className="flex justify-between text-[15px] text-slate-300">
-          <div className="flex  gap-x-1 [@media(max-width:380px)]:flex-wrap">
+
+      <div className="min-w-0">
+        <div className="flex justify-between gap-x-2.5 text-[15px] text-slate-300">
+          <div className="xs:overflow-visible xs:whitespace-normal mb-1 flex items-center gap-x-1.5 truncate leading-5 [@media(max-width:360px)]:flex-wrap">
             <Link
               href={`/${author.username}`}
-              className=" font-semibold capitalize text-[#e7e9ea]"
+              className="truncate font-semibold capitalize text-[#e7e9ea]"
             >
-              {`${author.name}`}
+              <p className="truncate font-semibold capitalize text-[#e7e9ea]">{`${author.name}`}</p>
             </Link>
-            <div className="text-[#71767b]">
-              <Link
-                className="truncate"
-                href={`/${author.username}`}
-              >{`@${author.username}`}</Link>
-              <Link className="" href={`/post/${post.id}`}>
-                {timeDifference <= 24 ? (
-                  <span>{` · ${formattedTime}`}</span>
-                ) : (
-                  <span>{` · ${createdAt.format("DD MMM")}`}</span>
-                )}
-              </Link>
-            </div>
+            <Link
+              className="truncate text-[#71767b]"
+              href={`/${author.username}`}
+            >{`@${author.username}`}</Link>
+            <span className="text-[#71767b]">·</span>
+            <Link className="text-[#71767b]" href={`/post/${post.id}`}>
+              {timeDifference <= 24
+                ? formattedTime
+                : createdAt.format("DD MMM")}
+            </Link>
           </div>
-          {sessionData && sessionData?.user?.id === post.userId && (
-            <div className="relative h-[22px]">
-              <button className="peer text-gray-400 transition-all duration-200 hover:text-sky-500 ">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                  className="h-[22px] w-[22px]"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
-                  />
-                </svg>
-              </button>
-              <div
-                className='invisible absolute -right-2 -top-5 z-10
+          <div className="relative h-[22px]">
+            <button className="peer text-gray-400 transition-all duration-200 hover:text-sky-500 ">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+                className="h-[22px] w-[22px]"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
+                />
+              </svg>
+            </button>
+            <div
+              className='invisible absolute -right-2 -top-5 z-10
                 w-[200px] rounded-md border border-slate-700 opacity-0
                 transition-all duration-300 after:absolute after:top-0 after:-z-20
                 after:inline-block after:h-full
                 after:w-full after:rounded-md after:bg-slate-900  after:content-[""] peer-focus:visible peer-focus:top-0 peer-focus:opacity-100'
-              >
+            >
+              {sessionData && sessionData?.user?.id === post.userId && (
                 <div className="p-1">
                   <button
                     onClick={() => {
                       setEditPost(post.content);
                       setToggle(true);
                     }}
-                    className="flex w-full items-center gap-2 rounded-md p-2 text-sm text-gray-100 hover:bg-gray-700"
+                    className="flex w-full items-center gap-2 rounded-md p-2 text-sm hover:bg-slate-800"
                     role="menuitem"
                   >
                     <svg
@@ -168,7 +164,7 @@ export const PostView = (props: PostWithUser) => {
                   <button
                     onClick={() => mutate({ postId: post.id })}
                     type="submit"
-                    className="flex w-full items-center gap-2 rounded-md p-2 text-sm text-gray-100 hover:bg-gray-700"
+                    className="flex w-full items-center gap-2 rounded-md p-2 text-sm hover:bg-slate-800"
                     role="menuitem"
                   >
                     <svg
@@ -188,14 +184,39 @@ export const PostView = (props: PostWithUser) => {
                     Delete Post
                   </button>
                 </div>
-              </div>
-              {isLoading && (
-                <div className="absolute end-0 top-6 flex items-center justify-center">
-                  <LoadingSpinner size={24} stroke="#FFF" strokeWidth={4} />
+              )}
+              {sessionData && sessionData?.user?.id !== post.userId && (
+                <div className="p-1">
+                  <button
+                    onClick={() => console.log(post.id)}
+                    className="flex w-full items-center gap-2 rounded-md p-2 text-sm hover:bg-slate-800"
+                    role="menuitem"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75"
+                      />
+                    </svg>
+                    Copy Link Post
+                  </button>
                 </div>
               )}
             </div>
-          )}
+            {isLoading && (
+              <div className="absolute end-0 top-6 flex items-center justify-center">
+                <LoadingSpinner size={24} stroke="#FFF" strokeWidth={4} />
+              </div>
+            )}
+          </div>
         </div>
         {editPost || toggle ? (
           <div className="w-full pt-1.5">
@@ -238,7 +259,7 @@ export const PostView = (props: PostWithUser) => {
           </div>
         ) : (
           <Link href={`/post/${post.id}`}>
-            <span className="whitespace-pre-wrap  leading-snug text-[#e7e9ea]">
+            <span className="whitespace-pre-wrap leading-snug text-[#e7e9ea]">
               {post.content}
             </span>
           </Link>
