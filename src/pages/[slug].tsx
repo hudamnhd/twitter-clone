@@ -37,7 +37,7 @@ const ProfileFeed = (props: { userId: string }) => {
     );
 
   return (
-    <div className="divide-y divide-slate-700">
+    <div>
       {data?.map((fullPost) => (
         <PostView {...fullPost} key={fullPost.post.id} />
       ))}
@@ -47,6 +47,7 @@ const ProfileFeed = (props: { userId: string }) => {
 
 const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
   const { data: sessionData, status } = useSession();
+
   const { data } = api.profile.getUserByUsername.useQuery(
     {
       username,
@@ -66,6 +67,10 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
   if (!data) return <NotFound />;
 
   const isFollowed = data.followers.some(
+    (user) => user.id === sessionData?.user.id,
+  );
+
+  const isFollowMe = data.follows.some(
     (user) => user.id === sessionData?.user.id,
   );
 
@@ -115,7 +120,6 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
           </div>
           <div className=" ml-4 flex flex-col">
             <div className="mx-4 mt-3 flex items-center justify-end gap-x-2">
-              {/* {false ? ( */}
               {sessionData && sessionData.user.id === data.id ? (
                 <button className="rounded-full bg-slate-900 px-6 py-2 text-sm font-semibold ring-1 ring-gray-500 hover:bg-slate-900 disabled:opacity-60">
                   Edit Profile
@@ -242,9 +246,16 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
               <h3 className="text-xl font-semibold capitalize text-[#e7e9ea]">
                 {data.name ?? ""}
               </h3>
-              <p className="-mt-0.5 text-[15px] text-[#71767b]">{`@${
-                data.username ?? ""
-              }`}</p>
+              <div className="flex items-center gap-x-1 font-medium text-[#71767b]">
+                <p className="-mt-0.5 text-[15px]">{`@${
+                  data.username ?? ""
+                }`}</p>
+                {isFollowMe && (
+                  <p className="w-fit rounded-md bg-slate-800 px-[3px] py-0.5 text-xs">
+                    Follows you
+                  </p>
+                )}
+              </div>
               <div className="mt-4 flex flex-wrap gap-x-5">
                 <span className="flex-none  text-[15px] text-[#71767b]">
                   <span className="font-extrabold text-[#e7e9ea]">

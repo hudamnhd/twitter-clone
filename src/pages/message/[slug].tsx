@@ -12,6 +12,7 @@ import { NotFound } from "~/components/notFound";
 
 const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
   const { data: sessionData } = useSession();
+
   const { data } = api.profile.getUserByUsername.useQuery(
     {
       username,
@@ -24,7 +25,7 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
   return (
     <>
       <Head>
-        <title>{`Profile ${data.name} Twitter T3 App`}</title>
+        <title>{`Message ${data.name} Twitter T3 App`}</title>
         <meta name="description" content="Profile Page Twitter T3 App" />
         <link rel="icon" href="/favicon.ico" />
       </Head>

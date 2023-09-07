@@ -1,62 +1,58 @@
+import type { RouterOutputs } from "../utils/api";
 import Image from "next/image";
 import Link from "next/link";
-import { api } from "~/utils/api";
-import type { RouterOutputs } from "../utils/api";
-import { LoadingSpinner } from "../components/loading";
-import { toast } from "react-hot-toast";
 import { useSession } from "next-auth/react";
-import { formatRelativeTime } from "~/utils/formatTime";
+import { toast } from "react-hot-toast";
 import { useAutoResizeInput } from "~/hook/useAutoResizeInput";
+import { api } from "~/utils/api";
+import { formatRelativeTime } from "~/utils/formatTime";
+import { LoadingSpinner } from "./loading";
 
-type PostWithUser = RouterOutputs["posts"]["getAll"][number];
-export const PostView = (props: PostWithUser) => {
-  const { post, author } = props;
-
+type CommentWithUser = RouterOutputs["posts"]["getComment"][number];
+export const CommentView = (props: CommentWithUser) => {
   const { data: sessionData } = useSession();
+
+  const { comment, author } = props;
+
+  const ctx = api.useContext();
 
   const { inputText, setInputText, inputTextRef, toggle, setToggle } =
     useAutoResizeInput("");
 
-  const ctx = api.useContext();
-  const { mutate, isLoading } = api.posts.delete.useMutation({
-    onSuccess: () => {
-      void ctx.posts.getAll.invalidate();
-    },
-    onError: () => {
-      toast.error("Failed to post! Please try again later.");
-    },
-  });
-  const { mutate: mutateEdit, isLoading: isSave } = api.posts.edit.useMutation({
-    onSuccess: () => {
-      setInputText("");
-      setToggle(false);
-      void ctx.posts.getAll.invalidate();
-    },
-    onError: (e) => {
-      const errorMessage = e.data?.zodError?.fieldErrors.content;
-      if (errorMessage?.[0]) {
-        toast.error(errorMessage[0]);
-      } else {
-        toast.error("Failed to post! Please try again later.");
-      }
-    },
-  });
-  const { mutate: mutateLike, isLoading: isLoadingLike } =
-    api.posts.like.useMutation({
+  const { mutate: mutateEdit, isLoading: isSave } =
+    api.posts.editComment.useMutation({
       onSuccess: () => {
-        void ctx.posts.getAll.invalidate();
-        void ctx.posts.getPostByUserId.invalidate();
+        setInputText("");
+        setToggle(false);
+        void ctx.posts.getComment.invalidate();
+      },
+      onError: (e) => {
+        const errorMessage = e.data?.zodError?.fieldErrors.content;
+        if (errorMessage?.[0]) {
+          toast.error(errorMessage[0]);
+        } else {
+          toast.error("Failed to comment! Please try again later.");
+        }
       },
     });
 
-  // const likedByMe = post.likes.some(
-  //   (user) => user.userId === sessionData?.user.id,
-  // );
+  const { mutate, isLoading } = api.posts.deleteComment.useMutation({
+    onSuccess: () => {
+      void ctx.posts.getComment.invalidate();
+    },
+  });
+
+  const { mutate: mutateLike, isLoading: isLoadingLike } =
+    api.posts.likeComment.useMutation({
+      onSuccess: () => {
+        void ctx.posts.getComment.invalidate();
+      },
+    });
 
   return (
     <div
       className={`${
-        isLoading ? "opacity-60" : ""
+        false ? "opacity-60" : ""
       } grid grid-cols-[auto,1fr] gap-x-3 gap-y-1  border-b border-slate-700 px-4 py-3 hover:bg-slate-800/20`}
     >
       <div className="flex min-w-[45px]">
@@ -78,15 +74,15 @@ export const PostView = (props: PostWithUser) => {
               href={`/${author.username}`}
               className="truncate font-semibold capitalize text-[#e7e9ea]"
             >
-              <p className="truncate font-semibold capitalize text-[#e7e9ea]">{`${author.name}`}</p>
+              {`${author.name}`}
             </Link>
             <Link
               className="truncate text-[#71767b]"
               href={`/${author.username}`}
             >{`@${author.username}`}</Link>
             <span className="text-[#71767b]">·</span>
-            <Link className="text-[#71767b]" href={`/post/${post.id}`}>
-              {formatRelativeTime(post.createdAt)}
+            <Link className="text-[#71767b]" href={`/comment/${comment.id}`}>
+              {formatRelativeTime(comment.createdAt)}
             </Link>
           </div>
           <div className="relative h-[22px]">
@@ -108,16 +104,16 @@ export const PostView = (props: PostWithUser) => {
             </button>
             <div
               className='invisible absolute -right-2 -top-5 z-10
-                w-[200px] rounded-md border border-slate-700 opacity-0
-                transition-all duration-300 after:absolute after:top-0 after:-z-20
-                after:inline-block after:h-full
-                after:w-full after:rounded-md after:bg-slate-900  after:content-[""] peer-focus:visible peer-focus:top-0 peer-focus:opacity-100'
+              w-[200px] rounded-md border border-slate-700 opacity-0
+              transition-all duration-300 after:absolute after:top-0 after:-z-20
+              after:inline-block after:h-full
+              after:w-full after:rounded-md after:bg-slate-900  after:content-[""] peer-focus:visible peer-focus:top-0 peer-focus:opacity-100'
             >
-              {sessionData && sessionData?.user?.id === post.userId && (
+              {sessionData && sessionData?.user?.id === comment.userId && (
                 <div className="p-1">
                   <button
                     onClick={() => {
-                      setInputText(post.content);
+                      setInputText(comment.content);
                       setToggle(true);
                     }}
                     className="flex w-full items-center gap-2 rounded-md p-2 text-sm hover:bg-slate-800"
@@ -140,7 +136,7 @@ export const PostView = (props: PostWithUser) => {
                     Edit Post
                   </button>
                   <button
-                    onClick={() => mutate({ postId: post.id })}
+                    onClick={() => mutate({ commentId: comment.id })}
                     type="submit"
                     className="flex w-full items-center gap-2 rounded-md p-2 text-sm hover:bg-slate-800"
                     role="menuitem"
@@ -163,10 +159,10 @@ export const PostView = (props: PostWithUser) => {
                   </button>
                 </div>
               )}
-              {sessionData?.user?.id !== post.userId && (
+              {sessionData?.user?.id !== comment.userId && (
                 <div className="p-1">
                   <button
-                    onClick={() => console.log(post.id)}
+                    onClick={() => console.log(comment.id)}
                     className="flex w-full items-center gap-2 rounded-md p-2 text-sm hover:bg-slate-800"
                     role="menuitem"
                   >
@@ -226,7 +222,7 @@ export const PostView = (props: PostWithUser) => {
                   <button
                     className="hover: flex justify-end rounded-full bg-sky-500 px-3 py-1.5 text-sm  font-medium duration-300 hover:bg-sky-600 disabled:opacity-60"
                     onClick={() =>
-                      mutateEdit({ postId: post.id, content: inputText })
+                      mutateEdit({ commentId: comment.id, content: inputText })
                     }
                   >
                     Save
@@ -236,9 +232,9 @@ export const PostView = (props: PostWithUser) => {
             </div>
           </div>
         ) : (
-          <Link href={`/post/${post.id}`}>
+          <Link href={`#`}>
             <span className="whitespace-pre-wrap break-all leading-snug text-[#e7e9ea]">
-              {post.content}
+              {comment.content}
             </span>
           </Link>
         )}
@@ -246,9 +242,9 @@ export const PostView = (props: PostWithUser) => {
         <div className="mt-2 flex h-[18px] items-center justify-between gap-x-1">
           <button
             disabled={isLoadingLike}
-            onClick={() => mutateLike({ postId: post.id })}
+            onClick={() => mutateLike({ commentId: comment.id })}
             className={`${
-              post.likedByMe
+              comment.likedByMe
                 ? "fill-[#f91880] text-[#f91880]"
                 : "fill-transparent text-gray-500 hover:text-[#f91880]"
             } group  flex items-center gap-x-1.5 sm:min-w-[40px]`}
@@ -274,20 +270,17 @@ export const PostView = (props: PostWithUser) => {
                 </svg>
                 <span
                   className={`${
-                    post.likedByMe
+                    comment.likedByMe
                       ? "fill-[#f91880] text-[#f91880]"
                       : "text-gray-500 group-hover:text-[#f91880]"
                   } text-sm font-medium`}
                 >
-                  {post.likes.length === 0 ? null : post.likes.length}
+                  {comment.likes.length === 0 ? null : comment.likes.length}
                 </span>
               </>
             )}
           </button>
-          <Link
-            href={`/post/${post.id}`}
-            className="flex items-center gap-x-1.5 text-gray-500 hover:text-sky-500"
-          >
+          <button className="text-gray-500 hover:text-sky-500">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -302,10 +295,7 @@ export const PostView = (props: PostWithUser) => {
                 d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
               />
             </svg>
-            <span className="text-sm">
-              {post?.comments?.length === 0 ? "" : post?.comments?.length}
-            </span>
-          </Link>
+          </button>
           <button className="text-gray-500 hover:text-green-500">
             <svg
               xmlns="http://www.w3.org/2000/svg"

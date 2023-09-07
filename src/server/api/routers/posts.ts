@@ -28,7 +28,7 @@ const filterUserForClient = (user: User) => {
 // Create a new ratelimiter, that allows 3 requests per 1 minute
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
-  limiter: Ratelimit.slidingWindow(3, "1 m"),
+  limiter: Ratelimit.slidingWindow(5, "1 m"),
   analytics: true,
   /**
    * Optional prefix for the keys used in redis. This is useful if you want to share a redis
@@ -48,6 +48,10 @@ export const postsRouter = createTRPCRouter({
           likes: {
             select: {
               userId: true,
+            },
+          },
+          comments: {
+            select: {
               postId: true,
             },
           },
@@ -55,7 +59,9 @@ export const postsRouter = createTRPCRouter({
       });
 
       if (!post) throw new TRPCError({ code: "NOT_FOUND" });
+
       const userId = ctx.session?.user.id;
+
       const user = await ctx.prisma.user.findMany();
 
       const likedByMe = {
@@ -65,18 +71,17 @@ export const postsRouter = createTRPCRouter({
           ...like,
         })),
       };
+
       const users = user.map(filterUserForClient);
-      // Langkah 2: Mencari author berdasarkan post.userId
+
       const author = users.find((user) => user.id === likedByMe.userId);
 
-      // Langkah 3: Melempar error jika author tidak ditemukan
       if (!author?.name) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
         });
       }
 
-      // Langkah 4: Mengembalikan hasil yang diinginkan
       return {
         post: likedByMe,
         author: {
@@ -85,6 +90,7 @@ export const postsRouter = createTRPCRouter({
         },
       };
     }),
+
   getPostByUserId: publicProcedure
     .input(
       z.object({
@@ -100,12 +106,18 @@ export const postsRouter = createTRPCRouter({
           likes: {
             select: {
               userId: true,
+            },
+          },
+          comments: {
+            select: {
               postId: true,
             },
           },
         },
       });
+
       const userId = ctx.session?.user.id;
+
       const user = await ctx.prisma.user.findMany();
 
       const likedByMe = post.map((post) => ({
@@ -113,7 +125,6 @@ export const postsRouter = createTRPCRouter({
         likedByMe: post.likes.some((like) => like.userId === userId),
         likes: post.likes.map((like) => ({
           ...like,
-          // Properti lain dalam objek like jika diperlukan
         })),
       }));
 
@@ -149,13 +160,17 @@ export const postsRouter = createTRPCRouter({
       include: {
         likes: {
           select: {
-            userId: true, // Ganti dengan properti yang ingin Anda ambil dari user
+            userId: true,
+          },
+        },
+        comments: {
+          select: {
             postId: true,
-            // ... tambahkan properti lain yang ingin Anda ambil dari user
           },
         },
       },
     });
+
     const userId = ctx.session?.user.id;
     const user = await ctx.prisma.user.findMany();
 
@@ -164,7 +179,6 @@ export const postsRouter = createTRPCRouter({
       likedByMe: post.likes.some((like) => like.userId === userId),
       likes: post.likes.map((like) => ({
         ...like,
-        // Properti lain dalam objek like jika diperlukan
       })),
     }));
 
@@ -273,7 +287,6 @@ export const postsRouter = createTRPCRouter({
       const userId = ctx.session.user.id;
       const postId = input.postId;
 
-      // Cek apakah user sudah ada dalam tabel like untuk postId tertentu
       const existingLike = await ctx.prisma.like.findFirst({
         where: {
           userId,
@@ -282,7 +295,6 @@ export const postsRouter = createTRPCRouter({
       });
 
       if (existingLike) {
-        // Jika user sudah ada, hapus data like yang ada
         await ctx.prisma.like.deleteMany({
           where: {
             userId,
@@ -291,11 +303,175 @@ export const postsRouter = createTRPCRouter({
         });
         return null; // Atau Anda bisa mengembalikan pesan sukses penghapusan
       } else {
-        // Jika user belum ada, tambahkan data like baru
         const newLike = await ctx.prisma.like.create({
           data: {
             userId,
             postId,
+          },
+        });
+        return newLike;
+      }
+    }),
+
+  getComment: publicProcedure
+    .input(
+      z.object({
+        postId: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const comments = await ctx.prisma.comment.findMany({
+        where: { postId: input.postId },
+        take: 10,
+        orderBy: [{ createdAt: "desc" }],
+        include: {
+          likes: {
+            select: {
+              userId: true,
+            },
+          },
+        },
+      });
+
+      const userId = ctx.session?.user.id;
+      const user = await ctx.prisma.user.findMany();
+
+      const likedByMe = comments.map((comment) => ({
+        ...comment,
+        likedByMe: comment.likes.some((like) => like.userId === userId),
+        likes: comment.likes.map((like) => ({
+          ...like,
+        })),
+      }));
+
+      const users = user.map(filterUserForClient);
+
+      return likedByMe.map((comment) => {
+        const author = users.find((user) => user.id === comment.userId);
+
+        if (!author)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Author for comment not found",
+          });
+
+        return {
+          comment,
+          author,
+        };
+      });
+    }),
+
+  createComment: protectedProcedure
+    .input(
+      z.object({
+        postId: z.string(),
+        content: z.string().min(1).max(500),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+
+      // const { success } = await ratelimit.limit(userId);
+
+      // if (!success) throw new TRPCError({ code: "TOO_MANY_REQUESTS" });
+
+      const post = await ctx.prisma.comment.create({
+        data: {
+          userId,
+          postId: input.postId,
+          content: input.content,
+        },
+      });
+      return post;
+    }),
+
+  deleteComment: protectedProcedure
+    .input(
+      z.object({
+        commentId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      const commentId = input.commentId;
+
+      const { success } = await ratelimit.limit(userId);
+
+      if (!success) throw new TRPCError({ code: "TOO_MANY_REQUESTS" });
+
+      const post = await ctx.prisma.comment.findUnique({
+        where: { id: commentId },
+      });
+
+      if (!post) throw new TRPCError({ code: "NOT_FOUND" });
+      if (post.userId !== userId) throw new TRPCError({ code: "FORBIDDEN" });
+
+      await ctx.prisma.comment.delete({
+        where: { id: commentId },
+      });
+
+      return { success: true };
+    }),
+
+  editComment: protectedProcedure
+    .input(
+      z.object({
+        commentId: z.string(),
+        content: z.string().min(1).max(500),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      const commentId = input.commentId;
+
+      const post = await ctx.prisma.comment.findUnique({
+        where: { id: commentId },
+      });
+
+      if (!post) throw new TRPCError({ code: "NOT_FOUND" });
+      if (post.userId !== userId) throw new TRPCError({ code: "FORBIDDEN" });
+
+      const updatedPost = await ctx.prisma.comment.update({
+        where: { id: commentId },
+        data: {
+          content: input.content,
+        },
+      });
+
+      return updatedPost;
+    }),
+
+  likeComment: protectedProcedure
+    .input(
+      z.object({
+        commentId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      const commentId = input.commentId;
+
+      const existingLike = await ctx.prisma.like.findFirst({
+        where: {
+          userId,
+          commentId,
+        },
+      });
+
+      if (existingLike) {
+        await ctx.prisma.like.deleteMany({
+          where: {
+            userId,
+            commentId,
+          },
+        });
+        return null; // Atau Anda bisa mengembalikan pesan sukses penghapusan
+      } else {
+        const newLike = await ctx.prisma.like.create({
+          data: {
+            userId,
+            commentId,
           },
         });
         return newLike;

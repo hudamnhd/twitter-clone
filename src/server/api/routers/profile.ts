@@ -64,13 +64,10 @@ export const profileRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session?.user.id;
-      // const { success } = await ratelimit.limit(authorId);
-
-      // if (!success) throw new TRPCError({ code: "TOO_MANY_REQUESTS" });
 
       const user = await ctx.prisma.user.findUnique({
         where: { id: userId },
-        include: { follows: true }, // Mengambil data follows dari pengguna
+        include: { follows: true },
       });
 
       const isFollowing = user?.follows.some(
@@ -78,12 +75,11 @@ export const profileRouter = createTRPCRouter({
       );
 
       if (isFollowing) {
-        // Jika sudah mengikuti, maka lakukan unfollow
         await ctx.prisma.user.update({
           where: { id: userId },
           data: {
             follows: {
-              disconnect: { id: input.id }, // Memutuskan hubungan
+              disconnect: { id: input.id },
             },
           },
         });

@@ -8,7 +8,7 @@ generator client {
 
 datasource db {
     provider     = "mysql"
-    // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
+    // NOTE: When using mysql or sqlserver, uncomment the // @db.Text annotations in model Account below
     // Further reading:
     // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
     // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
@@ -59,30 +59,48 @@ model User {
     // Non-Next Auth
     posts     Post[]
     likes     Like[]
-    followers User[] @relation(name: "Followers")
-    follows   User[] @relation(name: "Followers")
+    followers User[]    @relation(name: "Followers")
+    follows   User[]    @relation(name: "Followers")
+    comments  Comment[]
 }
 
 model Post {
     id        String   @id @default(cuid())
     createdAt DateTime @default(now())
 
-    content String @db.VarChar(255)
-    userId  String
-    user    User   @relation(fields: [userId], references: [id])
-    likes   Like[]
+    content  String    @db.VarChar(255)
+    userId   String
+    user     User      @relation(fields: [userId], references: [id])
+    likes    Like[]
+    comments Comment[]
 
     @@index([userId])
 }
 
 model Like {
-    userId String
-    postId String
-    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-    post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+    id        String   @id @default(cuid())
+    userId    String
+    postId    String?
+    commentId String?
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+    comment   Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
 
-    @@id([userId, postId])
     @@index([postId])
+}
+
+model Comment {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+
+    userId  String
+    postId  String
+    content String //@db.VarChar(255)
+    user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    post    Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+    likes   Like[]
+
+    @@index([userId])
 }
 
 model VerificationToken {
