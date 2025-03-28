@@ -10,7 +10,6 @@ const cacheKeyPost = `posts`;
 const cacheKey = `users`;
 
 export function meta({ data }: Route.MetaArgs) {
-  console.warn("DEBUGPRINT[79]: post.tsx:11: data=", data)
   return [
     { title: data ? `${data.post.content}` : "Not Found" },
     { name: "description", content: `${data.post.content}` },
@@ -27,8 +26,8 @@ export default function Post({ loaderData }: Route.ComponentProps) {
   const { post } = loaderData
   const navigate = useNavigate()
   return (
-    <main className="relative mx-auto min-h-screen w-full max-w-2xl border-border border-x">
-      <div className="sticky left-0 right-0 top-0 z-20  mx-auto flex h-[50px] max-w-2xl items-center justify-between border-b border-slate-700 p-3 backdrop-blur-sm">
+    <main className="relative mx-auto min-h-screen w-full max-w-xl border-border border-x">
+      <div className="sticky left-0 right-0 top-0 z-20  mx-auto flex h-[50px] max-w-xl items-center justify-between border-b border-slate-700 p-3 backdrop-blur-sm">
         <div className="flex  items-center gap-x-3">
           <Button size="icon" variant="ghost" onClick={() => navigate(-1)}>
             <svg

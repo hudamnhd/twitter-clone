@@ -7,8 +7,8 @@ import type { Route } from "./+types/register";
 const cacheKey = `users`;
 export function meta({ }: Route.MetaArgs) {
   return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
+    { title: "Register" },
+    { name: "description", content: "Register Form" },
   ];
 }
 
