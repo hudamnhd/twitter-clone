@@ -1,9 +1,22 @@
-import { type Config } from "tailwindcss";
+/** @type {import('tailwindcss').Config} */
+
+import animatePlugin from "tailwindcss-animate";
+import { extendedTheme } from "./app/utils/extended-theme";
+import { marketingPreset } from "./app/utils/tailwind-preset";
 
 export default {
-  content: ["./src/**/*.{js,ts,jsx,tsx}"],
+  content: ["./app/**/*.{ts,tsx,jsx,js}"],
+  darkMode: "class",
   theme: {
-    extend: {},
+    container: {
+      center: true,
+      padding: "2rem",
+      screens: {
+        "2xl": "1400px",
+      },
+    },
+    extend: extendedTheme,
   },
-  plugins: [],
-} satisfies Config;
+  presets: [marketingPreset],
+  plugins: [animatePlugin],
+};
