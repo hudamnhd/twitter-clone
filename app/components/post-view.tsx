@@ -1,6 +1,7 @@
-import { Link } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "#app/components/ui/avatar";
+import { cn } from "#app/utils/misc";
 import { getInitials } from "#app/utils/misc";
+import { Form, Link } from "react-router";
 
 export const PostView = ({ d }) => {
   return (
@@ -113,22 +114,45 @@ export const PostView = ({ d }) => {
             </span>
           </Link>
           <div className="mt-2 flex h-[18px] items-center justify-between gap-x-1">
-            <button className="fill-transparent text-gray-500 hover:text-[#f91880] group  flex items-center gap-x-1.5 sm:min-w-[40px]">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                className="h-[18px] w-[18px]"
+            <Form method="post" action="/?index">
+              <input type="hidden" value={d.id} name="post_id" />
+              <button
+                name="intent"
+                value="like-post"
+                className={cn(
+                  "hover:text-[#f91880] group  flex items-center gap-x-1.5 sm:min-w-[40px]",
+                  d.likes.length > 0 &&
+                    d.likes.find((l) => l.username === d.user.username)
+                    ? "text-[#f91880] fill-[#f91880]"
+                    : "text-gray-500 fill-transparent",
+                )}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-                />
-              </svg>
-              <span className="text-gray-500 group-hover:text-[#f91880] text-sm font-medium" />
-            </button>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="h-[18px] w-[18px]"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+                  />
+                </svg>
+                <span
+                  className={cn(
+                    "group-hover:text-[#f91880] text-sm font-medium",
+                    d.likes.length > 0 &&
+                      d.likes.find((l) => l.username === d.user.username)
+                      ? "text-[#f91880]"
+                      : "text-gray-500",
+                  )}
+                >
+                  {d.likes.length > 0 ? d.likes.length : ""}
+                </span>
+              </button>
+            </Form>
             <Link
               className="flex items-center gap-x-1.5 text-gray-500 hover:text-sky-500"
               to={`/post/${d.id}`}
@@ -198,4 +222,3 @@ export const PostView = ({ d }) => {
     </div>
   );
 };
-

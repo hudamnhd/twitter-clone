@@ -7,7 +7,8 @@ class Cache {
     this.cache = new LRUCache({
       max: 100, // Jumlah maksimal item yang bisa disimpan di cache
       // ttl: 600000, // TTL default dalam milidetik (60 detik)
-      ttl: 3600000, // TTL default dalam milidetik (1 jam)
+      // ttl: 3600000, // TTL default dalam milidetik (1 jam)
+      ttl: 3153600000, // TTL default dalam setahun
     });
   }
 
